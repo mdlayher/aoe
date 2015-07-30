@@ -85,20 +85,12 @@ const (
 
 // MarshalBinary allocates a byte slice containing the data from a ConfigArg.
 //
-// If c.Version does not equal Version (1), ErrorUnsupportedVersion is
-// returned.
-//
 // If any of the following conditions occur, ErrorBadArgumentParameter is
 // returned:
 //   - c.Command is larger than a 4-bit integer (0xf)
 //   - c.StringLength does not indicate the actual length of c.String
 //   - c.StringLength is greater than 1024
 func (c *ConfigArg) MarshalBinary() ([]byte, error) {
-	// Version must be 1
-	if c.Version != Version {
-		return nil, ErrorUnsupportedVersion
-	}
-
 	// Command must be a 4-bit integer
 	if c.Command > 0xf {
 		return nil, ErrorBadArgumentParameter

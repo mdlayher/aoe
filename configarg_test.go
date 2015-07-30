@@ -15,11 +15,6 @@ func TestConfigArgMarshalBinary(t *testing.T) {
 		err  error
 	}{
 		{
-			desc: "empty ConfigArg",
-			c:    &ConfigArg{},
-			err:  ErrorUnsupportedVersion,
-		},
-		{
 			desc: "command greater than 4-bit integer",
 			c: &ConfigArg{
 				Version: Version,

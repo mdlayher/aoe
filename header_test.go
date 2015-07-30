@@ -80,6 +80,65 @@ func TestHeaderMarshalBinary(t *testing.T) {
 	}
 }
 
+func TestHeaderUnmarshalAndMarshalBinary(t *testing.T) {
+	var tests = []struct {
+		desc string
+		b    []byte
+	}{
+		{
+			desc: "go-fuzz crasher: ConfigArg.Version accepted in unmarshal, but rejected in marshal",
+			b:    []byte("\x100000\x010000000000\x00\x00"),
+		},
+		{
+			desc: "header with CommandIssueATACommand, ATAArg OK",
+			b: []byte{
+				0x10, 0, 0, 1, 2, 0, 0, 0, 0, 10,
+				0x53, 1, 2, 3, 6, 6, 6, 6, 6, 6, 0, 0, 'f', 'o', 'o',
+			},
+		},
+		{
+			desc: "header with CommandQueryConfigInformation, ConfigArg OK",
+			b: []byte{
+				0x10, 0, 0, 1, 2, 1, 0, 0, 0, 10,
+				0, 10, 0, 1, 2, 0x11, 0, 3, 'f', 'o', 'o',
+			},
+		},
+		{
+			desc: "header with CommandMACMaskList, MACMaskArg OK",
+			b: []byte{
+				0x10, 0, 0, 1, 2, 2, 0, 0, 0, 10,
+				0, 0, 0, 1,
+				0, 1, 0xde, 0xad, 0xbe, 0xef, 0xde, 0xad,
+			},
+		},
+		{
+			desc: "header with CommandReserveRelease, ReserveReleaseArg OK",
+			b: []byte{
+				0x10, 0, 0, 1, 2, 3, 0, 0, 0, 10,
+				0, 1,
+				0xde, 0xad, 0xbe, 0xef, 0xde, 0xad,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		h := new(Header)
+		if err := h.UnmarshalBinary(tt.b); err != nil {
+			t.Fatalf("[%02d] unmarshal test %q, %v", i, tt.desc, err)
+		}
+
+		b, err := h.MarshalBinary()
+		if err != nil {
+			t.Fatalf("[%02d] marshal test %q, %v", i, tt.desc, err)
+		}
+
+		if want, got := tt.b, b; !bytes.Equal(want, got) {
+			t.Fatalf("[%02d] test %q, unexpected bytes:\n- want: %v\n-  got: %v",
+				i, tt.desc, want, got)
+		}
+	}
+}
+
 func TestHeaderUnmarshalBinary(t *testing.T) {
 	var tests = []struct {
 		desc string
