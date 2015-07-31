@@ -20,7 +20,16 @@ const (
 	// EtherType is the registered EtherType for ATA over Ethernet, when the
 	// protocol is encapsulated in a IEEE 802.3 Ethernet frame.
 	EtherType ethernet.EtherType = 0x88a2
+
+	BroadcastMajor uint16 = 0xffff
+	BroadcastMinor uint8  = 0xff
 )
+
+// ResponseSender provides an interface which allows an AoE handler to
+// construct and send a Header in response to a Request.
+type ResponseSender interface {
+	Send(*Header) (int, error)
+}
 
 // An Arg is an argument for a Command.  Different Arg implementations are
 // used for different types of Commands.

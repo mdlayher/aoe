@@ -47,7 +47,7 @@ type ATAArg struct {
 	// TODO(mdlayher): document these fields
 	ErrFeature  uint8
 	SectorCount uint8
-	CmdStatus   uint8
+	CmdStatus   ATACmdStatus
 	LBA         [6]uint8
 
 	// Data is raw data to be transferred to and from a server.
@@ -87,7 +87,7 @@ func (a *ATAArg) MarshalBinary() ([]byte, error) {
 	// Set other ATA data
 	b[1] = a.ErrFeature
 	b[2] = a.SectorCount
-	b[3] = a.CmdStatus
+	b[3] = uint8(a.CmdStatus)
 	b[4] = a.LBA[0]
 	b[5] = a.LBA[1]
 	b[6] = a.LBA[2]
@@ -137,7 +137,7 @@ func (a *ATAArg) UnmarshalBinary(b []byte) error {
 	// Read ATA data
 	a.ErrFeature = b[1]
 	a.SectorCount = b[2]
-	a.CmdStatus = b[3]
+	a.CmdStatus = ATACmdStatus(b[3])
 	a.LBA[0] = b[4]
 	a.LBA[1] = b[5]
 	a.LBA[2] = b[6]
