@@ -212,8 +212,8 @@ func (m *MACMaskArg) UnmarshalBinary(b []byte) error {
 	m.Error = MACMaskError(b[2])
 	m.DirCount = b[3]
 
-	// Must have exact number of bytes for directives with this count
-	if len(b[4:]) != (directiveLen * int(m.DirCount)) {
+	// Must have at least enough bytes for directives with this count
+	if len(b[4:]) < (directiveLen * int(m.DirCount)) {
 		return io.ErrUnexpectedEOF
 	}
 

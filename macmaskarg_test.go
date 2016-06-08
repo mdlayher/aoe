@@ -125,20 +125,23 @@ func TestMACMaskArgUnmarshalBinary(t *testing.T) {
 			err:  io.ErrUnexpectedEOF,
 		},
 		{
-			desc: "too many directives for dircount",
-			b: []byte{
-				0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 0,
-			},
-			err: io.ErrUnexpectedEOF,
-		},
-		{
 			desc: "bad directive",
 			b: []byte{
 				0, 0, 0, 1,
 				1, 1, 0xde, 0xad, 0xbe, 0xef, 0xde, 0xad,
 			},
 			err: ErrorBadArgumentParameter,
+		},
+		{
+			desc: "zero directives (with trailing bytes)",
+			b: []byte{
+				0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0,
+			},
+			m: &MACMaskArg{
+				DirCount:   0,
+				Directives: []*Directive{},
+			},
 		},
 		{
 			desc: "one directive",
