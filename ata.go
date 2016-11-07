@@ -97,6 +97,9 @@ func ServeATA(w ResponseSender, r *Header, rs io.ReadSeeker) (int, error) {
 	// Request for ATA write
 	case ATACmdStatusWrite28Bit, ATACmdStatusWrite48Bit:
 		warg, err = ataWrite(arg, rs)
+	// ATA device is ready
+	case ATACmdStatusReadyStatus:
+		return 0, nil
 	// Unknown ATA command, abort
 	default:
 		// TODO(mdlayher): possibly expose SMART data when a *block.Device
