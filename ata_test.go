@@ -136,6 +136,16 @@ func TestServeATA(t *testing.T) {
 			w: abort,
 		},
 		{
+			desc: "ATA ready status",
+			r: &Header{
+				Command: CommandIssueATACommand,
+				Arg: &ATAArg{
+					CmdStatus: ATACmdStatusReadyStatus,
+				},
+			},
+			w: nil,
+		},
+		{
 			desc: "ATA unknown command abort",
 			r: &Header{
 				Command: CommandIssueATACommand,
@@ -148,7 +158,7 @@ func TestServeATA(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		w := &captureHeaderResponseSender{}
+		w := &captureHeaderResponseSender{h: &Header{}}
 
 		if _, err := ServeATA(w, tt.r, tt.rs); err != nil || tt.err != nil {
 			if want, got := tt.err, err; want != got {
@@ -159,7 +169,16 @@ func TestServeATA(t *testing.T) {
 			continue
 		}
 
-		if want, got := tt.w, w.h.Arg; !reflect.DeepEqual(want, got) {
+		want, got := tt.w, w.h.Arg
+		if tt.r.Arg.(*ATAArg).CmdStatus == ATACmdStatusReadyStatus {
+			if want != nil && got != nil {
+				t.Fatalf("[%02d] test %q, unexpected ATAArg:\n- want: %v\n-  got: %v",
+					i, tt.desc, want, got)
+			}
+			continue
+		}
+
+		if !reflect.DeepEqual(want, got) {
 			t.Fatalf("[%02d] test %q, unexpected ATAArg:\n- want: %v\n-  got: %v",
 				i, tt.desc, want, got)
 		}
